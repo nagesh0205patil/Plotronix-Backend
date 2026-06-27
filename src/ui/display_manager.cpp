@@ -19,7 +19,7 @@ void DisplayManager::showStartupScreen() {
         return (128 - (length * 6 * size)) / 2;
     };
 
-    driver.setTextColor(ST77XX_WHITE);
+    driver.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
 
     driver.setTextSize(1);
     driver.setCursor(centerX("Welcome To", 1), 25);
@@ -38,6 +38,8 @@ void DisplayManager::showStartupScreen() {
 
     driver.setCursor(centerX("Solutions Pvt Ltd", 1), 110);
     driver.println("Solutions Pvt Ltd");
+
+    delay(50);
 }
 
 /**

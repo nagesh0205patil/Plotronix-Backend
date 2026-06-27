@@ -15,8 +15,8 @@
 
 // --- TFT Display Pins ---
 #define TFT_CS          10      // Chip Select (D10)
-#define TFT_DC          9       // Data/Command (D9)
-#define TFT_RST         8       // Reset (D8)
+#define TFT_DC          8       // Data/Command (D9)
+#define TFT_RST         9       // Reset (D8)
 #define TFT_INITR       INITR_REDTAB // Display controller initialization type
 //#define TFT_INITR    INITR_GREENTAB // Uncomment if redtab does not work
 //#define TFT_INITR    INITR_BLACKTAB   // Uncomment if redtab does not work
