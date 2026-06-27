@@ -1,0 +1,15 @@
+
+
+[APP] PlotTronix VI Lab - Initialization Starting
+[DEBUG] DisplayDriver::init() - Starting display initialization
+[DEBUG] TFT_CS=10 TFT_DC=9 TFT_RST=8
+[DEBUG] Pin states (digitalRead): CS=1 DC=1 RST=1
+[DEBUG] Resetting display (pulse RST low) ...
+[DEBUG] SPI.begin() ...
+[DEBUG] SPI.begin() complete
+[DEBUG] Attempting tft.initR() with timeout (2s max)...[DEBUG] Using INITR variant: INITR_REDTAB
+[DEBUG] tft.initR() returned after 1161ms
+[DEBUG] Display initialized with INITR_REDTAB
+[DEBUG] Rotation set to 1
+[DEBUG] Screen filled with black and visible test text drawn
+[APP] Initialization Complete - Entering main loop

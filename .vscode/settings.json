@@ -1,0 +1,23 @@
+{
+  "C_Cpp.default.includePath": [
+    "${workspaceFolder}",
+    "${workspaceFolder}/**",
+    "C:/Users/erpat/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.7/cores/arduino",
+    "C:/Users/erpat/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.7/variants/eightanaloginputs",
+    "C:/Users/erpat/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.7/libraries/SPI/src",
+    "C:/Users/erpat/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.7/libraries/Wire/src",
+    "C:/Users/erpat/OneDrive/Documents/Arduino/libraries/**"
+  ],
+  "C_Cpp.default.defines": [
+    "ARDUINO=10819",
+    "ARDUINO_AVR_NANO",
+    "ARDUINO_ARCH_AVR",
+    "F_CPU=16000000L"
+  ],
+  "C_Cpp.default.forcedInclude": [
+    "C:/Users/erpat/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.7/cores/arduino/Arduino.h"
+  ],
+  "files.associations": {
+    "*.ino": "cpp"
+  }
+}

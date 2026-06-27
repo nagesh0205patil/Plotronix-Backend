@@ -1,0 +1,7 @@
+
+
+[APP] PlotTronix VI Lab - Initialization Starting
+[DEBUG] DisplayDriver::init() - Starting display initialization
+[DEBUG] TFT_CS=10 TFT_DC=9 TFT_RST=8
+[DEBUG] Pin states (digitalRead): CS=1 DC=1 RST=1
+[DEBUG] Resetting display (pulse RST low) ...

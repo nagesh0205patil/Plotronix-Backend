@@ -1,0 +1,20 @@
+
+=== Minimal SPI Test ===
+[1] Pins configured as OUTPUT
+[2] Reset pulse sent
+[3] SPI.begin() called
+[4] Reading display ID (command 0x04)...
+    ID bytes: 0x0 0x0 0x0 0x0
+[5] Sending SLPOUT command (0x11)...
+    SLPOUT sent
+[6] Sending DISPON command (0x29)...
+    DISPON sent
+[7] Attempting to fill display with RED...
+    RED fill sent!
+
+[DONE] Test complete. Check if display shows RED.
+If blank: check power, GND connection, or display damage.
+Waiting... (waiting for user reset)
+Waiting... (waiting for user reset)
+Waiting... (waiting for user reset)
+Waiting... (waiting for user reset)
