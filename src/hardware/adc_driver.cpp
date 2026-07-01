@@ -17,11 +17,7 @@ SensorData ADCDriver::readAllSensors() {
     SensorData data;
 
     data.voltage         = readRawVoltage(PIN_VOLTAGE);
-    data.selectorVoltage = readRawVoltage(PIN_SELECTOR);
-
-    // Current is derived from voltage across shunt resistor: I = V / R
-    float shuntVoltage   = readRawVoltage(PIN_CURRENT);
-    data.current         = shuntVoltage / SHUNT_RESISTOR;
+    data.current         = readRawVoltage(PIN_CURRENT) / SHUNT_RESISTOR;
 
     return data;
 }

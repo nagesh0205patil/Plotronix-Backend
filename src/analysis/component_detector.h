@@ -7,23 +7,23 @@
 
 /* ============================================================================
  * COMPONENT DETECTOR
- * Business logic for identifying component type based on selector voltage
+ * Business logic for identifying component type based on selector switches
  * ============================================================================ */
 
 /**
  * @class ComponentDetector
- * Analyzes selector voltage to identify which component is selected
+ * Analyzes digital selector switches to identify which component is selected
  */
 class ComponentDetector {
 public:
     /**
-     * Detect component type from selector voltage
-     * Uses voltage thresholds to map selector position to component type
-     * 
-     * @param selectorVoltage Voltage from selector potentiometer (0.0 - VREF)
-     * @return ComponentInfo structure with type, tag, and name
-     */
-    ComponentInfo detect(float selectorVoltage);
+* Detect component type from a 4-bit selector ID.
+ * Selector is read from digital switches to form a binary component code.
+ * 
+ * @param selectorId 4-bit component selector ID (0-15)
+ * @return ComponentInfo structure with type, tag, and name
+ */
+ ComponentInfo detect(uint8_t selectorId);
 
 private:
     /**

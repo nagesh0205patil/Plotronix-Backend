@@ -1,9 +1,0 @@
-#line 1 "F:\\CloudTronix\\PlotTronix\\Plotronix_VI_Lab\\.vscode\\settings.json"
-{
-  "C_Cpp.default.configurationProvider": "ms-vscode.cpptools",
-  "C_Cpp.default.compileCommands": "${workspaceFolder}/.arduino/build/compile_commands.json",
-  "C_Cpp.default.configuration": "Arduino Mini (ATmega328)",
-  "files.associations": {
-    "*.ino": "cpp"
-  }
-}

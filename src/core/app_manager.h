@@ -10,6 +10,7 @@
 #include "../data/sensor_data.h"
 #include "../data/component_info.h"
 #include "../data/config.h"
+#include "../hardware/selector_driver.h"
 
 /* ============================================================================
  * APPLICATION MANAGER
@@ -55,6 +56,7 @@ private:
     ADCDriver adc;                       ///< ADC input abstraction
     DisplayManager display;              ///< Display UI management
     ComponentDetector componentDetector;  ///< Component identification
+    SelectorDriver selector;              ///< Digital selector switches
     SerialManager serialManager;         ///< Host communication
 
     // Timing state

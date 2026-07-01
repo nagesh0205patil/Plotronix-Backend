@@ -1,26 +1,25 @@
 #include "component_detector.h"
 
 /**
- * Detect the selected component based on the selector potentiometer voltage.
- * Each voltage range corresponds to a specific component position.
+ * Detect the selected component based on the digital selector switches.
+ * Uses a direct 4-bit lookup so each switch combination maps to a known type.
  */
-ComponentInfo ComponentDetector::detect(float selectorVoltage) {
-    // Map selector voltage ranges to component types
-    // Each voltage band corresponds to a position on the rotary selector
-
-    if      (selectorVoltage < 0.5)  return createInfo(DIODE,   "DIODE",   "Diode");
-    else if (selectorVoltage < 1.0)  return createInfo(ZENER,   "ZENER",   "Zener Diode");
-    else if (selectorVoltage < 1.5)  return createInfo(SCR,     "SCR",     "SCR");
-    else if (selectorVoltage < 2.0)  return createInfo(BJT_CB,  "BJT_CB",  "BJT-CB");
-    else if (selectorVoltage < 2.5)  return createInfo(BJT_CE,  "BJT_CE",  "BJT-CE");
-    else if (selectorVoltage < 3.0)  return createInfo(BJT_CC,  "BJT_CC",  "BJT-CC");
-    else if (selectorVoltage < 3.3)  return createInfo(FET,     "FET",     "FET");
-    else if (selectorVoltage < 3.6)  return createInfo(MOSFET,  "MOSFET",  "MOSFET");
-    else if (selectorVoltage < 4.0)  return createInfo(IGBT,    "IGBT",    "IGBT");
-    else if (selectorVoltage < 4.3)  return createInfo(UJT,     "UJT",     "UJT");
-    else if (selectorVoltage < 4.6)  return createInfo(TRIAC,   "TRIAC",   "TRIAC");
-    else if (selectorVoltage <= 5.1) return createInfo(DIAC,    "DIAC",    "DIAC");
-    else                             return createInfo(UNKNOWN,  "UNKNOWN", "?");
+ComponentInfo ComponentDetector::detect(uint8_t selectorId) {
+    switch (selectorId & 0x0F) {
+        case 0x01: return createInfo(DIODE, "DIODE", "Diode");
+        case 0x02: return createInfo(ZENER, "ZENER", "Zener Diode");
+        case 0x03: return createInfo(SCR, "SCR", "SCR");
+        case 0x04: return createInfo(BJT_CB, "BJT_CB", "BJT-CB");
+        case 0x05: return createInfo(BJT_CE, "BJT_CE", "BJT-CE");
+        case 0x06: return createInfo(BJT_CC, "BJT_CC", "BJT-CC");
+        case 0x07: return createInfo(FET, "FET", "FET");
+        case 0x08: return createInfo(MOSFET, "MOSFET", "MOSFET");
+        case 0x09: return createInfo(IGBT, "IGBT", "IGBT");
+        case 0x0A: return createInfo(UJT, "UJT", "UJT");
+        case 0x0B: return createInfo(TRIAC, "TRIAC", "TRIAC");
+        case 0x0C: return createInfo(DIAC, "DIAC", "DIAC");
+        default:   return createInfo(UNKNOWN, "UNKNOWN", "?");
+    }
 }
 
 /**

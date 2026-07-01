@@ -27,21 +27,17 @@ void AppManager::update() {
     // Always process incoming serial commands
     serialManager.processIncomingCommands();
 
-    // Check if we've passed the startup phase
-    if (!isReadyForMeasurement()) {
-        return;
-    }
-
-    // Execute measurement and display cycle
+    // Run the measurement and display cycle continuously so the UI state machine
+    // can advance through the welcome, initialization, waiting, and component screens.
     executeMeasurementCycle();
 }
 
 /**
- * Determine whether the startup delay has passed and the system is ready.
- * @return true if the startup splash period is complete.
+ * Determine whether the device is ready for measurement flow.
+ * The UI state machine now drives startup screens directly, so readiness is immediate.
  */
 bool AppManager::isReadyForMeasurement() const {
-    return (millis() - startupTime) >= STARTUP_DELAY;
+    return true;
 }
 
 /**
@@ -58,7 +54,10 @@ void AppManager::initializeSubsystems() {
     // Initialize ADC (minimal initialization needed)
     adc.init();
 
-    // Record startup time for splash screen duration
+    // Initialize selector driver pins
+    selector.init();
+
+    // Record startup time for any future startup-related logic.
     startupTime = millis();
 }
 
@@ -70,8 +69,11 @@ void AppManager::executeMeasurementCycle() {
     // Read all sensor inputs
     SensorData sensorData = adc.readAllSensors();
 
-    // Detect component type
-    ComponentInfo component = componentDetector.detect(sensorData.selectorVoltage);
+    // Read selector switches and encode a 4-bit component ID
+    sensorData.selectorId = selector.readSelector();
+
+    // Detect component type from the binary selector ID
+    ComponentInfo component = componentDetector.detect(sensorData.selectorId);
 
     // Update display with latest readings
     display.updateMeasurementDisplay(component, sensorData);

@@ -13,7 +13,7 @@
 struct SensorData {
     float voltage;          ///< Voltage across device under test (DUT)
     float current;          ///< Measured current through DUT (derived from shunt)
-    float selectorVoltage;  ///< Selector wheel voltage (used for component detection)
+    uint8_t selectorId;     ///< Selector ID encoded from four digital switches
 };
 
 #endif // PLOTRONIX_SENSOR_DATA_H

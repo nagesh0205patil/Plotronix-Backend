@@ -23,8 +23,8 @@ public:
     void init();
 
     /**
-     * Read all sensor channels and return calibrated data
-     * @return SensorData containing voltage, current, and selector readings
+     * Read all configured sensors and return calibrated measurements.
+     * Combines voltage and current into a SensorData packet.
      */
     SensorData readAllSensors();
 

@@ -17,7 +17,7 @@ void DisplayDriver::init() {
     Serial.print(TFT_DC);
     Serial.print(" TFT_RST=");
     Serial.println(TFT_RST);
-    // Configure TFT control pins as outputs and drive known states
+
     pinMode(TFT_CS, OUTPUT);
     pinMode(TFT_DC, OUTPUT);
     pinMode(TFT_RST, OUTPUT);
@@ -25,79 +25,53 @@ void DisplayDriver::init() {
     digitalWrite(TFT_DC, HIGH);
     digitalWrite(TFT_RST, HIGH);
 
-    Serial.print("[DEBUG] Pin states (digitalRead): CS=");
-    Serial.print(digitalRead(TFT_CS));
-    Serial.print(" DC=");
-    Serial.print(digitalRead(TFT_DC));
-    Serial.print(" RST=");
-    Serial.println(digitalRead(TFT_RST));
-
-    // Pulse RST low to ensure display resets
-    Serial.println("[DEBUG] Resetting display (pulse RST low) ...");
     digitalWrite(TFT_RST, LOW);
     delay(50);
     digitalWrite(TFT_RST, HIGH);
     delay(150);
 
-    Serial.println("[DEBUG] SPI.begin() ...");
     SPI.begin();
-    Serial.println("[DEBUG] SPI.begin() complete");
-    
-    Serial.print("[DEBUG] Attempting tft.initR() with timeout (2s max)...");
-    Serial.print("[DEBUG] Using INITR variant: ");
-#if TFT_INITR == INITR_BLACKTAB
-    Serial.println("INITR_BLACKTAB");
-#elif TFT_INITR == INITR_GREENTAB
-    Serial.println("INITR_GREENTAB");
-#elif TFT_INITR == INITR_REDTAB
-    Serial.println("INITR_REDTAB");
-#else
-    Serial.println("UNKNOWN");
-#endif
 
-    unsigned long startTime = millis();
-    tft.initR(TFT_INITR);
-    unsigned long elapsed = millis() - startTime;
-    
-    Serial.println("[DEBUG] tft.initR() returned after ");
-    Serial.print(elapsed);
-    Serial.println("ms");
+    const uint8_t initVariants[] = {INITR_BLACKTAB, INITR_REDTAB, INITR_GREENTAB};
+    const uint8_t variantCount = sizeof(initVariants) / sizeof(initVariants[0]);
+    bool initialized = false;
+    uint8_t selectedVariant = TFT_INITR;
 
-    if (elapsed > 2000) {
-        Serial.println("[WARN] tft.initR() took > 2 seconds (possible SPI comms issue)");
-        Serial.println("[WARN] Check TFT wiring: CS=D10, DC=D9, RST=D8");
-        Serial.println("[WARN] Check SPI wiring: MOSI=D11, SCK=D13, CS/DC/RST as above");
-        Serial.println("[WARN] Check power to display (5V or 3.3V depending on module)");
+    for (uint8_t i = 0; i < variantCount; ++i) {
+        const uint8_t variant = initVariants[i];
+        unsigned long startTime = millis();
+        tft.initR(variant);
+        unsigned long elapsed = millis() - startTime;
+
+        const int16_t width = tft.width();
+        const int16_t height = tft.height();
+        Serial.print("[DEBUG] initR variant ");
+        Serial.print(variant);
+        Serial.print(" completed in ");
+        Serial.print(elapsed);
+        Serial.print("ms (size=");
+        Serial.print(width);
+        Serial.print("x");
+        Serial.print(height);
+        Serial.println(")");
+
+        if (width >= 120 && height >= 120) {
+            initialized = true;
+            selectedVariant = variant;
+            break;
+        }
     }
 
-    // Attempt to read display ID to verify SPI communication
-    Serial.println("[DEBUG] Attempting to read display ID register via SPI...");
-    digitalWrite(TFT_CS, LOW);
-    SPI.transfer(0x04);  // Read ID command
-    uint8_t id1 = SPI.transfer(0x00);
-    uint8_t id2 = SPI.transfer(0x00);
-    uint8_t id3 = SPI.transfer(0x00);
-    digitalWrite(TFT_CS, HIGH);
-    Serial.print("[DEBUG] Display ID bytes: 0x");
-    Serial.print(id1, HEX);
-    Serial.print(" 0x");
-    Serial.print(id2, HEX);
-    Serial.print(" 0x");
-    Serial.println(id3, HEX);
+    if (!initialized) {
+        Serial.println("[WARN] TFT panel geometry could not be verified; using the configured init variant");
+    }
 
-#if TFT_INITR == INITR_BLACKTAB
-    Serial.println("[DEBUG] Display initialized with INITR_BLACKTAB");
-#elif TFT_INITR == INITR_GREENTAB
-    Serial.println("[DEBUG] Display initialized with INITR_GREENTAB");
-#elif TFT_INITR == INITR_REDTAB
-    Serial.println("[DEBUG] Display initialized with INITR_REDTAB");
-#else
-    Serial.println("[DEBUG] Display initialized with UNKNOWN INITR");
-#endif
+    Serial.print("[DEBUG] Selected TFT init variant: ");
+    Serial.println(selectedVariant);
 
-    tft.setRotation(1);
-    Serial.println("[DEBUG] Rotation set to 1");
-
+    tft.setRotation(TFT_ROTATION);
+    tft.setTextWrap(false);
+    tft.cp437(true);
     tft.fillScreen(ST77XX_BLACK);
     tft.setTextSize(1);
     tft.setCursor(0, 0);
@@ -105,13 +79,9 @@ void DisplayDriver::init() {
     tft.println("Display OK");
     tft.setCursor(0, 16);
     tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
-    tft.println("If blank, check");
-    tft.setCursor(0, 32);
-    tft.println("TFT wiring and");
-    tft.setCursor(0, 48);
-    tft.println("INITR variant.");
+    tft.println("Panel ready");
 
-    Serial.println("[DEBUG] Screen filled with black and visible test text drawn");
+    Serial.println("[DEBUG] TFT screen cleared and ready for full-screen rendering");
 }
 
 /**
