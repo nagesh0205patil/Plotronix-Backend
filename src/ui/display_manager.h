@@ -5,7 +5,6 @@
 #include "../hardware/display_driver.h"
 #include "../data/component_info.h"
 #include "../data/sensor_data.h"
-#include "../data/config.h"
 
 /* ============================================================================
  * DISPLAY MANAGER
@@ -41,7 +40,6 @@ private:
     };
 
     DisplayDriver driver;                    ///< Low-level display driver
-    unsigned long lastDisplayUpdate = 0;     ///< Timestamp of last display update
     unsigned long screenStartTime = 0;       ///< Timestamp when current screen started
     ScreenState currentScreen = SCREEN_WELCOME;
     ComponentType lastDetectedType = UNKNOWN;
@@ -71,7 +69,6 @@ private:
     /**
      * Render the component information screen.
      */
-    void showComponentScreen(const ComponentInfo& comp, const SensorData& data);
     void drawComponentLayout(const ComponentInfo& comp);
     void updateMeasurementValues(const SensorData& data);
 

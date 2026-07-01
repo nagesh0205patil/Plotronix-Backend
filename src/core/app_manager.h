@@ -46,11 +46,6 @@ public:
      */
     void update();
 
-    /**
-     * Check if currently in measurement phase (post-startup)
-     */
-    bool isReadyForMeasurement() const;
-
 private:
     // Subsystem modules
     ADCDriver adc;                       ///< ADC input abstraction

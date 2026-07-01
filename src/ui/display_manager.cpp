@@ -8,7 +8,6 @@ void DisplayManager::init() {
     currentScreen = SCREEN_WELCOME;
     lastDetectedType = UNKNOWN;
     screenStartTime = millis();
-    lastDisplayUpdate = 0;
     showWelcomeScreen();
 }
 
@@ -55,7 +54,6 @@ void DisplayManager::updateMeasurementDisplay(const ComponentInfo& comp, const S
             drawComponentLayout(comp);
             updateMeasurementValues(data);
             lastSensorData = data;
-            lastDisplayUpdate = now;
         } else {
             // Same component: update only measurement values when they change
             updateMeasurementValues(data);
@@ -142,15 +140,6 @@ void DisplayManager::showWaitingScreen() {
     driver.println(line1);
     driver.setCursor(x2, y + 12);
     driver.println(line2);
-}
-
-/**
- * Render the detected component information screen.
- */
-void DisplayManager::showComponentScreen(const ComponentInfo& comp, const SensorData& data) {
-    // Full layout drawing replaced by drawComponentLayout + incremental updates
-    drawComponentLayout(comp);
-    updateMeasurementValues(data);
 }
 
 void DisplayManager::drawComponentLayout(const ComponentInfo& comp) {

@@ -26,11 +26,6 @@ public:
  ComponentInfo detect(uint8_t selectorId);
 
 private:
-    /**
-     * Create a ComponentInfo structure for a specific type
-     * Helper method to encapsulate type metadata
-     */
-    ComponentInfo createInfo(ComponentType type, const char* tag, const char* name);
 };
 
 #endif // PLOTRONIX_COMPONENT_DETECTOR_H

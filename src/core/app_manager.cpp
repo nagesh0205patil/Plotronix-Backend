@@ -33,14 +33,6 @@ void AppManager::update() {
 }
 
 /**
- * Determine whether the device is ready for measurement flow.
- * The UI state machine now drives startup screens directly, so readiness is immediate.
- */
-bool AppManager::isReadyForMeasurement() const {
-    return true;
-}
-
-/**
  * Initialize all subsystems in the correct order.
  * Serial first for debug output, then display and ADC.
  */
