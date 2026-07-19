@@ -1,5 +1,15 @@
 #include "display_manager.h"
 
+namespace {
+constexpr int16_t TABLE_X = 6;
+constexpr int16_t TABLE_Y = 24;
+constexpr int16_t TABLE_WIDTH = 148;
+constexpr int16_t TABLE_COLUMN_X = 68;
+constexpr int16_t TABLE_ROW_HEIGHT = 14;
+constexpr uint8_t TABLE_DATA_ROWS = 6;
+constexpr int16_t TABLE_HEIGHT = TABLE_ROW_HEIGHT * (TABLE_DATA_ROWS + 1);
+}
+
 /**
  * Initialize display subsystem and show the startup sequence.
  */
@@ -57,6 +67,7 @@ void DisplayManager::updateMeasurementDisplay(const ComponentInfo& comp, const S
             componentLayoutDrawn = false;
             drawComponentLayout(comp);
             updateMeasurementValues(data);
+            componentLayoutDrawn = true;
             lastSensorData = data;
         } else {
             // Same component: update only measurement values when they change
@@ -151,87 +162,91 @@ void DisplayManager::drawComponentLayout(const ComponentInfo& comp) {
     Adafruit_ST7735 &tft = driver.getTFT();
 
     const int16_t screenWidth = tft.width();
-    const int16_t screenHeight = tft.height();
-    const int16_t headerY = 4;
-    const int16_t dividerY = 20;
-    const int16_t contentTop = 32; // increased gap after component name
-    const int16_t rowHeight = max(14, (screenHeight - contentTop - 8) / 4);
-    const int16_t labelX = 3;
-    const int16_t valueX = screenWidth / 2 + 2;
+    const uint16_t tableColor = ST77XX_CYAN;
 
     driver.setTextColor(0x07E0, ST77XX_BLACK);
     driver.setTextSize(2);
     int16_t nx = (screenWidth - (int16_t)strlen(comp.name) * 6 * 2) / 2;
     if (nx < 0) nx = 0;
-    driver.setCursor(nx, headerY);
+    driver.setCursor(nx, 3);
     driver.println(comp.name);
 
-    tft.drawFastHLine(0, dividerY, screenWidth, ST77XX_WHITE);
-
-    driver.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
-    driver.setTextSize(1);
-
-    const char* labels[] = {
-        "Input Voltage : ",
-        "Input Current : ",
-        "DUT Voltage   : ",
-        "DUT Current   : "
-    };
-
-    for (uint8_t i = 0; i < 4; ++i) {
-        const int16_t y = contentTop + i * rowHeight;
-        driver.setCursor(labelX, y);
-        driver.print(labels[i]);
-        driver.setCursor(valueX, y);
-        driver.println("--");
+    // Framed two-column table: one header row followed by six data rows.
+    tft.drawRect(TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT, tableColor);
+    tft.drawFastVLine(TABLE_COLUMN_X, TABLE_Y, TABLE_HEIGHT, tableColor);
+    for (uint8_t row = 1; row <= TABLE_DATA_ROWS; ++row) {
+        tft.drawFastHLine(
+            TABLE_X,
+            TABLE_Y + row * TABLE_ROW_HEIGHT,
+            TABLE_WIDTH,
+            tableColor);
     }
 
-    componentLayoutDrawn = true;
+    driver.setTextSize(1);
+    driver.setTextColor(tableColor, ST77XX_BLACK);
+    driver.setCursor(TABLE_X + 4, TABLE_Y + 3);
+    driver.print("PARAMETER");
+    driver.setCursor(TABLE_COLUMN_X + 27, TABLE_Y + 3);
+    driver.print("VALUE");
+
+    const char* labels[] = {
+        "VP1",
+        "IP1",
+        "Vdut",
+        "Idut",
+        "VP2",
+        "IP2"
+    };
+
+    driver.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
+    for (uint8_t i = 0; i < TABLE_DATA_ROWS; ++i) {
+        const int16_t labelWidth = (int16_t)strlen(labels[i]) * 6;
+        const int16_t labelX = TABLE_X + (TABLE_COLUMN_X - TABLE_X - labelWidth) / 2;
+        const int16_t y = TABLE_Y + (i + 1) * TABLE_ROW_HEIGHT + 3;
+        driver.setCursor(labelX, y);
+        driver.print(labels[i]);
+    }
 }
 
 void DisplayManager::updateMeasurementValues(const SensorData& data) {
     Adafruit_ST7735 &tft = driver.getTFT();
-    const int16_t screenHeight = tft.height();
-    const int16_t contentTop = 24;
-    const int16_t rowHeight = max(14, (screenHeight - contentTop - 8) / 4);
-    const int16_t valueX = tft.width() / 2 + 2;
-    const int16_t valueWidth = max(34, tft.width() - valueX - 3);
-    const uint8_t size = 1;
+    const int16_t valueCellX = TABLE_COLUMN_X + 1;
+    const int16_t valueCellWidth = TABLE_X + TABLE_WIDTH - valueCellX - 1;
 
-    auto drawValueAt = [&](int16_t y, const char* text) {
-        driver.getTFT().fillRect(valueX, y, valueWidth, rowHeight - 2, ST77XX_BLACK);
-        driver.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
-        driver.setTextSize(size);
-        driver.setCursor(valueX, y);
+    auto drawValueAt = [&](uint8_t row, const char* text) {
+        const int16_t cellY = TABLE_Y + (row + 1) * TABLE_ROW_HEIGHT + 1;
+        const int16_t textWidth = (int16_t)strlen(text) * 6;
+        const int16_t textX = valueCellX + (valueCellWidth - textWidth) / 2;
+        tft.fillRect(valueCellX, cellY, valueCellWidth, TABLE_ROW_HEIGHT - 2, ST77XX_BLACK);
+        driver.setTextColor(ST77XX_YELLOW, ST77XX_BLACK);
+        driver.setTextSize(1);
+        driver.setCursor(textX, cellY + 2);
         driver.println(text);
     };
 
     const float vEps = 0.01f;
     const float iEps = 0.5f;
-    char buf[24];
+    const bool voltageChanged =
+        fabs(data.voltage - lastSensorData.voltage) > vEps || !componentLayoutDrawn;
+    const float currentMilliAmps = data.current * 1000.0f;
+    const float lastCurrentMilliAmps = lastSensorData.current * 1000.0f;
+    const bool currentChanged =
+        fabs(currentMilliAmps - lastCurrentMilliAmps) > iEps || !componentLayoutDrawn;
+    char voltageText[24];
+    char currentText[24];
 
-    if (fabs(data.voltage - lastSensorData.voltage) > vEps || !componentLayoutDrawn) {
-        snprintf(buf, sizeof(buf), "%.2f V", (double)data.voltage);
-        drawValueAt(contentTop, buf);
+    if (voltageChanged) {
+        snprintf(voltageText, sizeof(voltageText), "%.2f V", (double)data.voltage);
+        drawValueAt(0, voltageText);
+        drawValueAt(2, voltageText);
+        drawValueAt(4, voltageText);
     }
 
-    float in_mA = data.current * 1000.0f;
-    float last_in_mA = lastSensorData.current * 1000.0f;
-    if (fabs(in_mA - last_in_mA) > iEps || !componentLayoutDrawn) {
-        snprintf(buf, sizeof(buf), "%d mA", (int)roundf(in_mA));
-        drawValueAt(contentTop + rowHeight, buf);
-    }
-
-    if (fabs(data.voltage - lastSensorData.voltage) > vEps || !componentLayoutDrawn) {
-        snprintf(buf, sizeof(buf), "%.2f V", (double)data.voltage);
-        drawValueAt(contentTop + rowHeight * 2, buf);
-    }
-
-    float dut_mA = data.current * 1000.0f;
-    float last_dut_mA = lastSensorData.current * 1000.0f;
-    if (fabs(dut_mA - last_dut_mA) > iEps || !componentLayoutDrawn) {
-        snprintf(buf, sizeof(buf), "%d mA", (int)roundf(dut_mA));
-        drawValueAt(contentTop + rowHeight * 3, buf);
+    if (currentChanged) {
+        snprintf(currentText, sizeof(currentText), "%d mA", (int)roundf(currentMilliAmps));
+        drawValueAt(1, currentText);
+        drawValueAt(3, currentText);
+        drawValueAt(5, currentText);
     }
 }
 
