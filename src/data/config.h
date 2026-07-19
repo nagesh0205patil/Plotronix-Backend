@@ -44,6 +44,11 @@
 #define INITIALIZATION_SCREEN_DURATION 5000   // Initialization screen display duration
 #define DISPLAY_REFRESH              200     // Minimum time between display updates
 #define SERIAL_RATE                  50      // Minimum time between serial transmissions
+#define SELECTOR_STABILITY_TIME      25      // Time a selector value must remain stable before use
+
+// Set to 1 while diagnosing selector input. Logs are disabled by default because
+// verbose output at 9600 baud can itself delay the main loop.
+#define SELECTOR_DEBUG_LOGS          0
 
 // --- Serial Communication ---
 #define SERIAL_BAUD     9600    // Serial baud rate

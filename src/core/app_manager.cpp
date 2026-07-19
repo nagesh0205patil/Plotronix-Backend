@@ -58,6 +58,14 @@ void AppManager::initializeSubsystems() {
  * update UI, and send serial data if streaming.
  */
 void AppManager::executeMeasurementCycle() {
+    // The selector publishes only the newest value that has remained stable.
+    // Pending/bouncing input keeps the last valid component on screen.
+#if SELECTOR_DEBUG_LOGS
+    const bool selectorChanged = selector.update();
+#else
+    selector.update();
+#endif
+
     // Read all sensor inputs
     SensorData sensorData = adc.readAllSensors();
 
@@ -67,8 +75,28 @@ void AppManager::executeMeasurementCycle() {
     // Detect component type from the binary selector ID
     ComponentInfo component = componentDetector.detect(sensorData.selectorId);
 
+#if SELECTOR_DEBUG_LOGS
+    if (selectorChanged) {
+        Serial.print(F("[SELECTION] seq="));
+        Serial.print(selector.getSequence());
+        Serial.print(F(" selector=0x"));
+        Serial.print(sensorData.selectorId, HEX);
+        Serial.print(F(" result="));
+        Serial.println(component.tag);
+    }
+#endif
+
     // Update display with latest readings
     display.updateMeasurementDisplay(component, sensorData);
+
+#if SELECTOR_DEBUG_LOGS
+    if (selectorChanged) {
+        Serial.print(F("[SELECTION] UI applied seq="));
+        Serial.print(selector.getSequence());
+        Serial.print(F(" state="));
+        Serial.println(component.type == UNKNOWN ? F("waiting") : component.name);
+    }
+#endif
 
     // Send data to host if streaming is active
     serialManager.sendDataFrame(component, sensorData);

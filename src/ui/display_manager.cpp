@@ -39,6 +39,8 @@ void DisplayManager::updateMeasurementDisplay(const ComponentInfo& comp, const S
     if (!componentDetected) {
         if (currentScreen != SCREEN_WAITING) {
             currentScreen = SCREEN_WAITING;
+            lastDetectedType = UNKNOWN;
+            componentLayoutDrawn = false;
             showWaitingScreen();
         }
         return;
@@ -46,7 +48,9 @@ void DisplayManager::updateMeasurementDisplay(const ComponentInfo& comp, const S
 
     // If a component is detected, draw static layout once and update values incrementally
     if (componentDetected) {
-        if (comp.type != lastDetectedType) {
+        if (currentScreen != SCREEN_COMPONENT ||
+            comp.type != lastDetectedType ||
+            !componentLayoutDrawn) {
             // New component selected: draw full layout
             currentScreen = SCREEN_COMPONENT;
             lastDetectedType = comp.type;
